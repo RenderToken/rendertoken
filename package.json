@@ -1,0 +1,20 @@
+{
+  "name": "render-token-crowdsale",
+  "version": "1.0.0",
+  "description": "Smart contracts for the Render Token ICO",
+  "main": "index.js",
+  "scripts": {
+    "test": "scripts/test.sh"
+  },
+  "author": "Augusto Lemble <me@augustolemble.com>",
+  "devDependencies": {
+    "ethereumjs-testrpc": "^4.1.1",
+    "truffle": "^3.4.7"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "chai": "^4.1.1",
+    "chai-bignumber": "^2.0.1",
+    "zeppelin-solidity": "^1.2.0"
+  }
+}
