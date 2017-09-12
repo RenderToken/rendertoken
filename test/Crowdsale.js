@@ -118,6 +118,8 @@ contract('Render Token Crowdsale', function(accounts) {
 
     assert.equal(finalTotalSupply, parseInt(help.parseRNDR(totalSupply)));
 
+    assert.equal(true, await token.mintingFinished());
+
     assert.equal(
       finalTotalSupply,
       parseInt(help.parseRNDR(await token.totalSupply()))
@@ -194,6 +196,8 @@ contract('Render Token Crowdsale', function(accounts) {
     );
 
     totalSupply += (totalSupply*2.6)+(totalSupply*0.4);
+
+    assert.equal(true, await token.mintingFinished());
 
     assert.equal(
       totalSupply,
