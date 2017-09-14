@@ -11,13 +11,14 @@ contract('Render Token Crowdsale', function(accounts) {
     const startBlock = web3.eth.blockNumber+10;
     const endBlock = startBlock+100;
     const rate = 10;
-    const cap = web3.toWei(1000, 'ether');
+    const minCap = web3.toWei(100, 'ether');
+    const maxCap = web3.toWei(1000, 'ether');
     const wallet = accounts[1];
     const foundationAddress = accounts[2];
     const foundersAddress = accounts[3];
 
     let crowdsale = await RenderTokenCrowdsale.new(
-      startBlock, endBlock, rate, cap, wallet, foundationAddress, foundersAddress
+      startBlock, endBlock, rate, minCap, maxCap, wallet, foundationAddress, foundersAddress
     );
 
     assert.equal(startBlock, await crowdsale.startBlock());
@@ -26,6 +27,8 @@ contract('Render Token Crowdsale', function(accounts) {
     assert.equal(wallet, await crowdsale.wallet());
     assert.equal(foundationAddress, await crowdsale.foundationAddress());
     assert.equal(foundersAddress, await crowdsale.foundersAddress());
+    assert.equal(minCap, parseFloat(await crowdsale.goal()));
+    assert.equal(maxCap, parseFloat(await crowdsale.cap()));
 
   });
 
@@ -34,13 +37,14 @@ contract('Render Token Crowdsale', function(accounts) {
     const startBlock = web3.eth.blockNumber+10;
     const endBlock = startBlock+100;
     const rate = 10;
-    const cap = web3.toWei(1000, 'ether');
+    const minCap = web3.toWei(100, 'ether');
+    const maxCap = web3.toWei(1000, 'ether');
     const wallet = accounts[1];
     const foundationAddress = accounts[2];
     const foundersAddress = accounts[3];
 
     let crowdsale = await RenderTokenCrowdsale.new(
-      startBlock, endBlock, rate, cap, wallet, foundationAddress, foundersAddress
+      startBlock, endBlock, rate, minCap, maxCap, wallet, foundationAddress, foundersAddress
     );
 
     await crowdsale.addWhitelistedAddr(accounts[5]);
@@ -66,9 +70,11 @@ contract('Render Token Crowdsale', function(accounts) {
     const startBlock = web3.eth.blockNumber+10;
     const endBlock = startBlock+10;
     const USDperETH = 300;
+    const minCapUSD = 13421772;
     const maxCapUSD = 134217728;
     const maxTokensICO = 536870912;
     const maxTokensICOFormated = help.formatRNDR(maxTokensICO);
+    const minCapWei = web3.toWei(minCapUSD/USDperETH, 'ether');
     const maxCapWei = web3.toWei(maxCapUSD/USDperETH, 'ether');
     const rate = maxTokensICOFormated/maxCapWei;
     const wallet = accounts[1];
@@ -79,7 +85,7 @@ contract('Render Token Crowdsale', function(accounts) {
     var totalSupply = 0;
 
     let crowdsale = await RenderTokenCrowdsale.new(
-      startBlock, endBlock, rate, maxCapWei, wallet, foundationAddress, foundersAddress
+      startBlock, endBlock, rate, minCapWei, maxCapWei, wallet, foundationAddress, foundersAddress
     );
 
     let token = RenderToken.at(await crowdsale.token());
@@ -99,9 +105,11 @@ contract('Render Token Crowdsale', function(accounts) {
     const startBlock = web3.eth.blockNumber+10;
     const endBlock = startBlock+10;
     const USDperETH = 300;
+    const minCapUSD = 13421772;
     const maxCapUSD = 134217728;
     const maxTokensICO = 536870912;
     const maxTokensICOFormated = help.formatRNDR(maxTokensICO);
+    const minCapWei = web3.toWei(minCapUSD/USDperETH, 'ether');
     const maxCapWei = web3.toWei(maxCapUSD/USDperETH, 'ether');
     const rate = maxTokensICOFormated/maxCapWei;
     const wallet = accounts[1];
@@ -123,7 +131,7 @@ contract('Render Token Crowdsale', function(accounts) {
     assert.equal(maxTokensICOFormated/rate, maxCapWei);
 
     let crowdsale = await RenderTokenCrowdsale.new(
-      startBlock, endBlock, rate, maxCapWei, wallet, foundationAddress, foundersAddress
+      startBlock, endBlock, rate, minCapWei, maxCapWei, wallet, foundationAddress, foundersAddress
     );
 
     let token = RenderToken.at(await crowdsale.token());
@@ -202,14 +210,18 @@ contract('Render Token Crowdsale', function(accounts) {
     const startBlock = web3.eth.blockNumber+10;
     const endBlock = startBlock+10;
     const USDperETH = 300;
+    const minCapUSD = 13421772;
     const maxCapUSD = 134217728;
     const maxTokensICO = 536870912;
     const maxTokensICOFormated = help.formatRNDR(maxTokensICO);
+    const minCapWei = web3.toWei(minCapUSD/USDperETH, 'ether');
     const maxCapWei = web3.toWei(maxCapUSD/USDperETH, 'ether');
     const rate = maxTokensICOFormated/maxCapWei;
     const wallet = accounts[1];
     const foundationAddress = accounts[2];
     const foundersAddress = accounts[3];
+    const finalTotalSupply = 2147483648;
+    const initialWalletBalance = parseFloat(await web3.eth.getBalance(wallet));
     var totalSupply = 0;
 
     console.log('Start block', startBlock);
@@ -224,7 +236,7 @@ contract('Render Token Crowdsale', function(accounts) {
     assert.equal(maxTokensICOFormated/rate, maxCapWei);
 
     let crowdsale = await RenderTokenCrowdsale.new(
-      startBlock, endBlock, rate, maxCapWei, wallet, foundationAddress, foundersAddress
+      startBlock, endBlock, rate, minCapWei, maxCapWei, wallet, foundationAddress, foundersAddress
     );
 
     let token = RenderToken.at(await crowdsale.token());
@@ -278,6 +290,85 @@ contract('Render Token Crowdsale', function(accounts) {
       totalSupply,
       parseFloat(await token.totalSupply())
     );
+
+  });
+
+  it("Should create a crowdsale, dont reach teh cap, finalize and returns the eth invested", async function() {
+
+    const startBlock = web3.eth.blockNumber+10;
+    const endBlock = startBlock+10;
+    const USDperETH = 300;
+    const minCapUSD = 13421772;
+    const maxCapUSD = 134217728;
+    const maxTokensICO = 536870912;
+    const maxTokensICOFormated = help.formatRNDR(maxTokensICO);
+    const minCapWei = web3.toWei(minCapUSD/USDperETH, 'ether');
+    const maxCapWei = web3.toWei(maxCapUSD/USDperETH, 'ether');
+    const rate = maxTokensICOFormated/maxCapWei;
+    const wallet = accounts[1];
+    const foundationAddress = accounts[2];
+    const foundersAddress = accounts[3];
+    const finalTotalSupply = 2147483648;
+    const initialWalletBalance = parseFloat(await web3.eth.getBalance(wallet));
+    var totalSupply = 0;
+
+    console.log('Start block', startBlock);
+    console.log('End block', endBlock);
+    console.log('USD per ETH', USDperETH);
+    console.log('Max Cap USD', maxCapUSD);
+    console.log('Max tokens ICO', maxTokensICO);
+    console.log('Max Cap Wei', maxCapWei);
+    console.log('Max Cap ETH', web3.fromWei(maxCapWei));
+    console.log('Tokens per ETH', rate);
+
+    assert.equal(maxTokensICOFormated/rate, maxCapWei);
+
+    let crowdsale = await RenderTokenCrowdsale.new(
+      startBlock, endBlock, rate, minCapWei, maxCapWei, wallet, foundationAddress, foundersAddress
+    );
+
+    let token = RenderToken.at(await crowdsale.token());
+
+    assert.equal(startBlock, await crowdsale.startBlock());
+    assert.equal(endBlock, await crowdsale.endBlock());
+    assert.equal(rate, await crowdsale.rate());
+    assert.equal(wallet, await crowdsale.wallet());
+    assert.equal(foundationAddress, await crowdsale.foundationAddress());
+    assert.equal(foundersAddress, await crowdsale.foundersAddress());
+    assert.equal(0, await token.totalSupply());
+
+    await help.waitToBlock(startBlock);
+
+    // add whitelisted addresses
+    await crowdsale.addWhitelistedAddr(accounts[5], {from: accounts[0]});
+    await crowdsale.addWhitelistedAddr(accounts[6], {from: accounts[0]});
+    await crowdsale.addWhitelistedAddr(accounts[7], {from: accounts[0]});
+
+    // buying all tokens from 2 accounts
+
+    await crowdsale.sendTransaction({value: web3.toWei(100), from: accounts[5]});
+    totalSupply += parseFloat(web3.toWei(100)*1200);
+    await crowdsale.sendTransaction({value: web3.toWei(200), from: accounts[6]});
+    totalSupply += parseFloat(web3.toWei(200)*1200);
+
+    assert.equal(totalSupply, parseFloat(await token.totalSupply()));
+
+    // waiting for end of ICO
+
+    await help.waitToBlock(endBlock);
+
+    // finalize crowdsale and check foundation and founders balance
+
+    crowdsale.finalize();
+
+    assert.equal(false, await crowdsale.goalReached());
+
+    assert.equal(web3.toWei(300), await web3.eth.getBalance(await crowdsale.vault()));
+
+    await crowdsale.claimRefund({from: accounts[5]});
+    await crowdsale.claimRefund({from: accounts[6]});
+
+    assert.equal(0, await web3.eth.getBalance(await crowdsale.vault()));
 
   });
 
