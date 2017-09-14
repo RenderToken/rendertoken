@@ -4,16 +4,17 @@ import './RenderToken.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 import 'zeppelin-solidity/contracts/token/MintableToken.sol';
 import 'zeppelin-solidity/contracts/crowdsale/CappedCrowdsale.sol';
-import 'zeppelin-solidity/contracts/crowdsale/FinalizableCrowdsale.sol';
+import 'zeppelin-solidity/contracts/crowdsale/RefundableCrowdsale.sol';
 
 /**
  * @title RenderTokenCrowdsale
  * @dev Capped crowdsale for the RenderToken, distributing the tokens
- * and funds once it finalize.
+ * and funds once it finalize or return the ethers if minimun cap wasnt
+ * reached
  * Only whitelisted addresses added by the owner of teh contract can
  * buy tokens
  */
-contract RenderTokenCrowdsale is CappedCrowdsale, FinalizableCrowdsale {
+contract RenderTokenCrowdsale is CappedCrowdsale, RefundableCrowdsale {
 
   address public foundationAddress;
   address public foundersAddress;
@@ -26,11 +27,11 @@ contract RenderTokenCrowdsale is CappedCrowdsale, FinalizableCrowdsale {
   }
 
   function RenderTokenCrowdsale(
-    uint256 startBlock, uint256 endBlock,
-    uint256 rate, uint256 cap, address wallet,
+    uint256 startBlock, uint256 endBlock, uint256 rate,
+    uint256 minCap, uint256 maxCap, address wallet,
     address _foundationAddress, address _foundersAddress
-  ) CappedCrowdsale(cap)
-    FinalizableCrowdsale()
+  ) CappedCrowdsale(maxCap)
+    RefundableCrowdsale(minCap)
     Crowdsale(startBlock, endBlock, rate, wallet)
   {
     require(_foundationAddress != address(0));
