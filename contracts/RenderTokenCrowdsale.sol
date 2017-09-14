@@ -31,11 +31,9 @@ contract RenderTokenCrowdsale is CappedCrowdsale, FinalizableCrowdsale {
     foundersAddress = _foundersAddress;
   }
 
-  // finalize function called by the owner that will distribute the remaining tokens
-  function finalize() onlyOwner {
-    require(!isFinalized);
-    require(hasEnded());
-
+  // finalization function called by the finalize function that will distribute
+  // the remaining tokens
+  function finalization() internal {
     uint256 tokensSold = token.totalSupply();
 
     uint256 foundationTokens = tokensSold.mul(26000).div(10000);
@@ -44,10 +42,7 @@ contract RenderTokenCrowdsale is CappedCrowdsale, FinalizableCrowdsale {
     token.mint(foundationAddress, foundationTokens);
     token.mint(foundersAddress, foundersTokens);
 
-    finalization();
-    Finalized();
-
-    isFinalized = true;
+    super.finalization();
   }
 
   function createTokenContract() internal returns (MintableToken) {
