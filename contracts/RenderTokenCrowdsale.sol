@@ -9,12 +9,21 @@ import 'zeppelin-solidity/contracts/crowdsale/FinalizableCrowdsale.sol';
 /**
  * @title RenderTokenCrowdsale
  * @dev Capped crowdsale for the RenderToken, distributing the tokens
- * and funds once it finalize
+ * and funds once it finalize.
+ * Only whitelisted addresses added by the owner of teh contract can
+ * buy tokens
  */
 contract RenderTokenCrowdsale is CappedCrowdsale, FinalizableCrowdsale {
 
   address public foundationAddress;
   address public foundersAddress;
+
+  mapping(address => bool) public whitelistedAddrs;
+
+  modifier fromWhitelistedAddr(){
+    require(whitelistedAddrs[msg.sender]);
+    _;
+  }
 
   function RenderTokenCrowdsale(
     uint256 startBlock, uint256 endBlock,
@@ -29,6 +38,23 @@ contract RenderTokenCrowdsale is CappedCrowdsale, FinalizableCrowdsale {
 
     foundationAddress = _foundationAddress;
     foundersAddress = _foundersAddress;
+  }
+
+  // override buyTokens function to allow only whitelisted addresses buy
+  function buyTokens(address beneficiary) fromWhitelistedAddr() payable {
+    super.buyTokens(beneficiary);
+  }
+
+  // add a whitelisted address
+  function addWhitelistedAddr(address whitelistedAddr) onlyOwner {
+    require(!whitelistedAddrs[whitelistedAddr]);
+    whitelistedAddrs[whitelistedAddr] = true;
+  }
+
+  // remove a whitelisted address
+  function removeWhitelistedAddr(address whitelistedAddr) onlyOwner {
+    require(whitelistedAddrs[whitelistedAddr]);
+    whitelistedAddrs[whitelistedAddr] = false;
   }
 
   // finalization function called by the finalize function that will distribute
