@@ -109,7 +109,7 @@ contract('Render Token Crowdsale', function(accounts) {
     const foundersAddress = accounts[3];
     const finalTotalSupply = 2147483648;
     const initialWalletBalance = parseFloat(await web3.eth.getBalance(wallet));
-    var totalSupply = 0;
+    var tokensSold = 0;
 
     console.log('Start block', startBlock);
     console.log('End block', endBlock);
@@ -146,11 +146,11 @@ contract('Render Token Crowdsale', function(accounts) {
     // buying all tokens from 3 accounts
 
     await crowdsale.sendTransaction({value: web3.toWei(100000), from: accounts[5]});
-    totalSupply += parseFloat(web3.toWei(100000)*1200);
+    tokensSold += parseFloat(web3.toWei(100000)*1200);
     await crowdsale.sendTransaction({value: web3.toWei(200000), from: accounts[6]});
-    totalSupply += parseFloat(web3.toWei(200000)*1200);
+    tokensSold += parseFloat(web3.toWei(200000)*1200);
     await crowdsale.buyTokens(accounts[8], {value: web3.toWei(147392.4266666667), from: accounts[7]});
-    totalSupply += parseFloat(web3.toWei(147392.4266666667)*1200);
+    tokensSold += parseFloat(web3.toWei(147392.4266666667)*1200);
 
     assert.equal(maxTokensICO, parseInt(help.parseRNDR(await token.totalSupply())));
 
@@ -176,17 +176,14 @@ contract('Render Token Crowdsale', function(accounts) {
     , help.formatRNDR(1));
 
     assert.equal(
-      totalSupply*2.6,
-      parseFloat(await token.balanceOf(foundationAddress))
+      parseInt(finalTotalSupply*0.1),
+      parseInt(help.parseRNDR(await token.balanceOf(foundersAddress)))
     );
+
     assert.equal(
-      totalSupply*0.4,
-      parseFloat(await token.balanceOf(foundersAddress))
+      parseInt(finalTotalSupply*0.9 - help.parseRNDR(tokensSold)),
+      parseInt(help.parseRNDR(await token.balanceOf(foundationAddress)))
     );
-
-    totalSupply += (totalSupply*2.6)+(totalSupply*0.4);
-
-    assert.equal(finalTotalSupply, parseInt(help.parseRNDR(totalSupply)));
 
     assert.equal(true, await token.mintingFinished());
 
@@ -210,7 +207,8 @@ contract('Render Token Crowdsale', function(accounts) {
     const wallet = accounts[1];
     const foundationAddress = accounts[2];
     const foundersAddress = accounts[3];
-    var totalSupply = 0;
+    const finalTotalSupply = 2147483648;
+    var tokensSold = 0;
 
     console.log('Start block', startBlock);
     console.log('End block', endBlock);
@@ -247,11 +245,11 @@ contract('Render Token Crowdsale', function(accounts) {
     // buying all tokens from 2 accounts
 
     await crowdsale.sendTransaction({value: web3.toWei(100000), from: accounts[5]});
-    totalSupply += parseFloat(web3.toWei(100000)*1200);
+    tokensSold += parseFloat(web3.toWei(100000)*1200);
     await crowdsale.sendTransaction({value: web3.toWei(150000), from: accounts[6]});
-    totalSupply += parseFloat(web3.toWei(150000)*1200);
+    tokensSold += parseFloat(web3.toWei(150000)*1200);
 
-    assert.equal(totalSupply, parseFloat(await token.totalSupply()));
+    assert.equal(tokensSold, parseFloat(await token.totalSupply()));
 
     // waiting for end of ICO
 
@@ -262,21 +260,20 @@ contract('Render Token Crowdsale', function(accounts) {
     crowdsale.finalize();
 
     assert.equal(
-      totalSupply*2.6,
-      parseFloat(await token.balanceOf(foundationAddress))
-    );
-    assert.equal(
-      totalSupply*0.4,
-      parseFloat(await token.balanceOf(foundersAddress))
+      parseInt(finalTotalSupply*0.1),
+      parseInt(help.parseRNDR(await token.balanceOf(foundersAddress)))
     );
 
-    totalSupply += (totalSupply*2.6)+(totalSupply*0.4);
+    assert.equal(
+      parseInt(finalTotalSupply*0.9 - help.parseRNDR(tokensSold)),
+      parseInt(help.parseRNDR(await token.balanceOf(foundationAddress)))
+    );
 
     assert.equal(true, await token.mintingFinished());
 
     assert.equal(
-      totalSupply,
-      parseFloat(await token.totalSupply())
+      finalTotalSupply,
+      parseInt(help.parseRNDR(await token.totalSupply()))
     );
 
   });
