@@ -61,12 +61,16 @@ contract RenderTokenCrowdsale is CappedCrowdsale, FinalizableCrowdsale {
   // the remaining tokens
   function finalization() internal {
     uint256 tokensSold = token.totalSupply();
+    uint256 finalTotalSupply = cap.mul(rate).mul(4);
 
-    uint256 foundationTokens = tokensSold.mul(26000).div(10000);
-    uint256 foundersTokens = tokensSold.mul(4000).div(10000);
-
-    token.mint(foundationAddress, foundationTokens);
+    // send the 10% of the final total supply to the founders
+    uint256 foundersTokens = finalTotalSupply.div(10);
     token.mint(foundersAddress, foundersTokens);
+
+    // send the 65% plus the unsold tokens in ICO to the foundation
+    uint256 foundationTokens = finalTotalSupply.sub(tokensSold)
+      .sub(foundersTokens);
+    token.mint(foundationAddress, foundationTokens);
 
     super.finalization();
   }
