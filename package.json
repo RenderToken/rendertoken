@@ -8,13 +8,14 @@
   },
   "author": "Augusto Lemble <me@augustolemble.com>",
   "devDependencies": {
-    "ethereumjs-testrpc": "^4.1.1",
-    "truffle": "^3.4.7"
+    "ethereumjs-testrpc": "^6.0.3",
+    "truffle": "^4.0.0",
+    "truffle-hdwallet-provider": "0.0.3"
   },
   "license": "ISC",
   "dependencies": {
     "chai": "^4.1.1",
     "chai-bignumber": "^2.0.1",
-    "zeppelin-solidity": "^1.2.0"
+    "zeppelin-solidity": "^1.7.0"
   }
 }
