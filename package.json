@@ -15,8 +15,9 @@
   "license": "ISC",
   "dependencies": {
     "chai": "^4.1.1",
+    "chai-as-promised": "^7.1.1",
     "chai-bignumber": "^2.0.1",
-    "zeppelin-solidity": "^1.7.0",
-    "truffle-flattener": "^1.2.5"
+    "truffle-flattener": "^1.2.5",
+    "zeppelin-solidity": "^1.7.0"
   }
 }
