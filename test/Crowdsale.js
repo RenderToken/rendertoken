@@ -1,8 +1,8 @@
 
 var help = require('./helpers.js');
 
-var RenderToken = artifacts.require("./RenderToken.sol");
-var RenderTokenCrowdsale = artifacts.require("./RenderTokenCrowdsale.sol");
+var RenderToken = artifacts.require("RenderToken.sol");
+var RenderTokenCrowdsale = artifacts.require("RenderTokenCrowdsale.sol");
 
 contract('Render Token Crowdsale', function(accounts) {
 
