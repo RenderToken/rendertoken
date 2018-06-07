@@ -2,14 +2,14 @@ pragma solidity ^0.4.18;
 
 import "zeppelin-solidity/contracts/token/ERC20/MintableToken.sol";
 import "zeppelin-solidity/contracts/token/ERC20/PausableToken.sol";
-import "zeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
+import "zeppelin-solidity/contracts/token/ERC827/ERC827Token.sol";
 
 /**
  * @title NewRenderToken
  * @dev ERC20 ownable, mintable and pausable token
  * The token will be minted by the owner and oldToken hoders
  */
-contract NewRenderToken is MintableToken, PausableToken {
+contract NewRenderToken is MintableToken, PausableToken, ERC827Token {
 
   string public constant name = "Render Token";
   string public constant symbol = "RNDR";
